@@ -6,6 +6,7 @@ output: pdf_document
 ---
 
 ### Section 1. Introduction
+We are investigating various statistics for every player who has played in the NBA within the 1996-2019 seasons, ranging from their home country and college of origin, draft year and round, and various stats such as points, rebounds, and assists per game. 
 
 ### Section 2. Data description
 This dataset was found on Kaggle (https://www.kaggle.com/justinas/nba-players-data) and was originally collected using the NBA Stats API. The person who created this dataset filled in missing rows of data manually using data from the Basketball Reference. Each observation in the dataset represents a player and their corresponding qualities/ draft stats/ game stats. The variables in the dataset include different aspects pertaining to the player- whether it be information about how/ when they were drafted, physical characteristics (height, weight), and game stats (average number of games, rebounds). 
