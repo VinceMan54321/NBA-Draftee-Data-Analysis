@@ -2,7 +2,7 @@
 title: "Project proposal"
 author: "Team Name: Elizabeth Berenguer, Vincent Huang, Mina Kim, Ashir Raza"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: pdf_document 
 ---
 
 ### Section 1. Introduction
