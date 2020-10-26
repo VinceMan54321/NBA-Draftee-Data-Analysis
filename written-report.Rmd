@@ -1,7 +1,7 @@
 ---
-title: "Your project title"
+title: "Investigating NBA Player Statistics"
 author: "Team Name: Team member 1, Team member 2, Team member 3, Team member 4"
-date: "Update date"
+date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
@@ -12,4 +12,16 @@ knitr::opts_chunk$set(echo = FALSE,
 ```
 
 Your written report goes here! Before you submit, make sure your code chunks are turned off with `echo = FALSE` and there are no warnings or messages with `warning = FALSE` and `message = FALSE` 
+
+Draft should include:
+- the research context and motivation
+
+We plan to conduct research on the Kaggle dataset of NBA players, which includes over two decades of data on every player that has been part of an NBA team's roster. The data for each player includes demographic variables such as age, height, weight and place of birth, as well as the player's team, draft year and round. In addition, it includes basic box score statistics such as games played, average number of points, rebounds, assists, etc. We thought it would be interesting to explore diversity and/or changes within the NBA over a long period of time (** change this to our actual research question)
+
+- exploratory data analysis
+
+- any inference, modeling, or conclusions.
+
+The dataset includes biometric, biographic, and basic box score features for all NBA seasons from 1996-2019, so we can use it to make inferences about the upcoming NBA seasons. 
+
 
