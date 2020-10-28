@@ -4,6 +4,11 @@ author: "Team Name: Ashir Raza, Vincent Huang, Mina Kim, Elizabeth Berengeur"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE)
+```
 
 ```{r load-packages, message=FALSE}
 library(tidyverse)
@@ -12,12 +17,6 @@ library(infer)
 
 ```{r load-data, message=FALSE}
 nba <- read_csv("data/all_seasons.csv")
-```
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, 
-                      warning = FALSE, 
-                      message = FALSE)
 ```
 
 Your written report goes here! Before you submit, make sure your code chunks are turned off with `echo = FALSE` and there are no warnings or messages with `warning = FALSE` and `message = FALSE` 
@@ -40,9 +39,9 @@ Our general hypothesis is that over the past twenty or so seasons, shorter and l
 
 If we take a closer look at our data set by year, we can see that although there are some outliers, consistent data on players across the league started being kept around the year 1981.  For this reason, we will pick 1996 as our start year for our analysis and filter out any recorded data from before 1996.  We will also cap off our analysis before the 2019 season, as that season was ongoing at the time of upload, so metrics like gp, pts, reb, etc. would not be complete.  
 
-This data set is biased towards the offensive side of the ball, with there being only defensive statistics in this data set, so contributions given by players who devoted much of their time to the defensive side of the ball might be neglected.  
+This data set is biased towards the offensive side of the ball, with there being no defensive statistics such as blocks or steals in this data set, so contributions given by players who devoted much of their time to the defensive side of the ball might be neglected.  
 
-To start, we will create a new dataset with just newly drafted players. This will remove all returning players to allow us to simply look at how drafting has changed from 1981 to 2018.
+To start, we will create a new dataset with just newly drafted players. This will remove all returning players to allow us to simply look at how drafting has changed from 1981 to 2018 and to try to view what qualities NBA teams value over time. We shall also group all the draft picks by multiples of ten (ie: picks 1-10, 11-20, etc...) in order to organize the data more efficiently. These groups will be referred to as draft groups for the remainder of this report. 
 
 ```{r draft-dataset}
 draft_data <- nba %>%
@@ -65,6 +64,8 @@ draft_data <- draft_data %>%
 draft_data <- draft_data %>%
   mutate(short_season = str_sub(season, start = 1, end = 4))
 ```
+
+We shall now group by both season and draft group, and find the mean of both height and weight, the two most obvious physical characteristics of an NBA player, for each season and draft group. We will graph these over time, with the draft groups differentiated by color, in order to determine if NBA teams' value of height and weight have changed at all over time. 
 
 ```{r height-visualization, fig.width=10, fig.height=10}
 
@@ -91,6 +92,9 @@ ggplot(data = draft_data, aes(x = short_season, y = mean_weight,
 
 ```
 
+Based off of the two visualizations, it seems that both height and weight similarly changed over time. Both appeared to increase for the first few seasons and then decrease for the next few seasons, and then increase once again for latest few seasons from 1996 to 2019. This pattern was especially noticeable for picks 1-10, which are the most valuable picks. 
+
+3) Results
 
 
 
