@@ -5,6 +5,15 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(infer)
+```
+
+```{r load-data, message=FALSE}
+nba <- read_csv("data/all_seasons.csv")
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, 
                       warning = FALSE, 
@@ -30,7 +39,31 @@ If we take a closer look at our data set by year, we can see that although there
 
 This data set is biased towards the offensive side of the ball, with there being only defensive statistics in this data set, so contributions given by players who devoted much of their time to the defensive side of the ball might be neglected.  
 
-To start, we will create a new dataset with just newly drafted players.  This will remove all returning players to allow us to simply 
+To start, we will create a new dataset with just newly drafted players.  This will remove all returning players to allow us to simply look at how drafting has changed from 1981 to 2018.
+
+
+
+
+
+```{r draft-dataset}
+
+draft_data <- nba %>%
+  group_by(player_name) %>%
+  filter(age == min(age)) %>%
+  filter(draft_year >= 1996 & draft_year <= 2018)
+
+glimpse(draft_data)
+
+draft_data
+
+```
+
+
+
+
+
+
+
 
 
 
