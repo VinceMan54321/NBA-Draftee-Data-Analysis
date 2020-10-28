@@ -45,15 +45,14 @@ This data set is biased towards the offensive side of the ball, with there being
 To start, we will create a new dataset with just newly drafted players. This will remove all returning players to allow us to simply look at how drafting has changed from 1981 to 2018.
 
 ```{r draft-dataset}
-
 draft_data <- nba %>%
   group_by(player_name) %>%
   filter(age == min(age)) %>%
   filter(draft_year >= 1996 & draft_year <= 2018)
-
 ```
 
-```{r draft-group-var}
+```{r new-var}
+
 draft_data <- draft_data %>%
   mutate(draft_group = case_when(
     draft_number <= 10 ~ "1 - 10",
@@ -62,17 +61,34 @@ draft_data <- draft_data %>%
     draft_number >= 31 & draft_number <= 40 ~ "31 - 40",
     draft_number >= 41 & draft_number <= 50 ~ "41 - 50",
     draft_number >= 51 & draft_number <= 60 ~ "51 - 60"))
+
+draft_data <- draft_data %>%
+  mutate(short_season = str_sub(season, start = 1, end = 4))
 ```
 
-```{r height-visualization}
-ggplot(data = draft_data, aes(x = season, y = player_height)) +
-  geom_histogram(stat = 'identity') + labs(x = "Season", y = "Height (cm)",
-  title = "Height vs Season of NBA rookies since 1996",
-  subtitle = "faceted by every ten picks") + facet_wrap(~draft_group)
+```{r height-visualization, fig.width=10, fig.height=10}
+
+draft_data <- draft_data %>%
+  group_by(draft_group, season) %>%
+  mutate(mean_height = mean(player_height))
+
+ggplot(data = draft_data, aes(x = short_season, y = mean_height, 
+       color = draft_group)) + geom_point() + 
+  labs(x = "Season", y = "Height (cm)", title = "Height vs Season",
+  subtitle = "of NBA rookies since 1996", color = "Group of Ten Picks") +             geom_smooth(aes(group = draft_group))
+
 ```
-```{r}
-ggplot(data = draft_data, aes(x = season, y = player_height)) +
-  geom_bar(stat = "identity")
+```{r weight-visualization, fig.width=10, fig.height=10}
+
+draft_data <- draft_data %>%
+  group_by(draft_group, season) %>%
+  mutate(mean_weight = mean(player_weight))
+
+ggplot(data = draft_data, aes(x = short_season, y = mean_weight, 
+       color = draft_group)) + geom_point() + 
+  labs(x = "Season", y = "Weight (kg)", title = "Weight vs Season",
+  subtitle = "of NBA rookies since 1996", color = "Group of Ten Picks") +             geom_smooth(aes(group = draft_group))
+
 ```
 
 
