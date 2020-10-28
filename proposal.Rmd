@@ -20,4 +20,3 @@ nba <- read_csv("data/all_seasons.csv")
 ```{r glimpse}
 glimpse(nba)
 ```
-
