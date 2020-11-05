@@ -95,7 +95,7 @@ draft_data <- draft_data %>%
 ggplot(data = draft_data, aes(x = short_season, y = mean_weight, 
        color = draft_group)) + geom_point() + 
   labs(x = "Season", y = "Weight (kg)", title = "Weight vs Season",
-  subtitle = "of NBA rookies since 1996", color = "Group of Ten Picks") +             geom_smooth(aes(group = draft_group))
+  subtitle = "of NBA rookies from 1996-2019", color = "Group of Ten Picks") +             geom_smooth(aes(group = draft_group))
 
 ```
 
@@ -124,9 +124,9 @@ Null Hypothesis: The proportion of guards picked in the first round is equal to 
 
 Alternate Hypothesis: The proportion of guards picked in the first round is greater to the proportion of guards picked in the second round.
 
-$H_0: \chi^2_1 = \chi^2_2$
+$H_0: p_1 = p_2$
 
-$H_a: \chi^2_1 > \chi^2_2$
+$H_a: p_1 > p_2$
 
 To do this, we will use a simulation of a null distribution of difference in proportions. We will use 1000 samples and visualize them on a graph, along with a 95% confidence interval. 
 
@@ -152,10 +152,10 @@ specify(draft_round ~ guards, success = "1") %>%
   calculate(stat = "diff in props",
             order = c("not guard", "guard"))
 
-boot_diffs %>%
+p_val <- boot_diffs %>%
   mutate(extreme = ifelse(stat > obs_diff, 0, 1)) %>%
   summarize(p_val = mean(extreme)) %>%
-  pull()
+  print()
 
 obs_diff = unlist(obs_diff)
 ggplot(data = boot_diffs, aes(x = stat)) +
@@ -166,7 +166,7 @@ ggplot(data = boot_diffs, aes(x = stat)) +
        title = "Proportions of Guards Picked in 1st and 2nd Rounds",
        subtitle = "1,000 bootstrap simulations with 95% CI shown")
 ```
-Our p-value was about 0, and so we reject the null hypothesis at the a = 0.05 level. This is further backed by our confidence interval, [-0.164, 0.169], and our null distribution graph, which shows that our observed difference is outside the confidence interval. There is sufficient evidence to suggest that a larger proportion guards of guards were picked in the first round compared to the second round, meaning that skilled guards in general are likely more valued than forwards and centers.
+Our p-value was about `r p_val`, and so we reject the null hypothesis at the a = 0.05 level. This is further backed by our confidence interval, [`r round(ci1$lower, 3)`, `r round(ci1$upper, 3)`], and our null distribution graph, which shows that our observed difference is outside the confidence interval. There is sufficient evidence to suggest that a larger proportion guards of guards were picked in the first round compared to the second round, meaning that skilled guards in general are likely more valued than forwards and centers.
 
 We shall now test whether guards were consistently valued over the past twenty seasons, or if certain time periods had different values in what NBA teams wanted in a player. We can do this by comparing the mean of the season for both guards and frontcourt players to see which is higher or lower, if either. 
 
@@ -176,7 +176,7 @@ Alternative Hypothesis: The mean year of guards who were drafted is different th
 
 $H_0: \mu_1 = \mu_2$
 
-$H_a: \mu_1 > \mu_2$
+$H_a: \mu_1 \neq \mu_2$
 
 
 Similar to the previous test, we will use a simulation of a null distribution. However, this time, it will be of a difference in means. We will use 2500 samples and visualize them on a graph, along with a 95% confidence interval. 
@@ -203,9 +203,10 @@ no <- draft_data %>%
 
 obs_diff2 <- mean(yes$short_season) - mean(no$short_season)
 
-null_dist %>%
+p_val <- null_dist %>%
   filter(stat > obs_diff) %>%
-  summarise(p_val = n()/nrow(null_dist))
+  summarise(p_val = n()/nrow(null_dist)) %>%
+  print()
 
 obs_diff2 = unlist(obs_diff2)
 ggplot(data = null_dist, aes(x = stat)) +
@@ -214,11 +215,11 @@ ggplot(data = null_dist, aes(x = stat)) +
   geom_vline(xintercept = c(obs_diff2), color = "black", lwd = 1) +
   labs(x = "Mean Year", y = "Count",
        title = "Difference in Means of Seasons Between Guards and Non-Guards",
-       subtitle = "1,000 bootstrap simulations with 95% CI shown")
+       subtitle = "2,500 bootstrap simulations with 95% CI shown")
 ```
-Our confidence interval was [-2.302, 2.255]. Our null distribution graph shows that our observed difference in means is approximately in the middle of the confidence interval, which shows that we will likely not be able to reject our null hypothesis. 
+Our confidence interval was [`r round(ci2$lower, 3)`, `r round(ci2$upper, 3)`]. Our null distribution graph shows that our observed difference in means is approximately in the middle of the confidence interval, which shows that we will likely not be able to reject our null hypothesis. 
 
-This is proven by our p-value, 0.634, which is much greater than 0.05, so we fail to reject our null hypothesis. Therefore, there is no sufficient evidence that the mean year of guards who were drafted is either different or not different than non guards who were drafted. In the context of our research question, there is not sufficient evidence to prove that there has been a shift in preferences to prefer picking guards during the first draft round. 
+This is proven by our p-value, `r p_val`, which is much greater than 0.05, so we fail to reject our null hypothesis. Therefore, there is no sufficient evidence that the mean year of guards who were drafted is either different or not different than non guards who were drafted. In the context of our research question, there is not sufficient evidence to prove that there has been a shift in preferences to prefer picking guards during the first draft round. 
 
 In order to move on from our disheartening lack of results, we will attempt to analyze whether frontcourt players were more valued in certain seasons based off our visualizations in Section 1. 
 
@@ -227,22 +228,24 @@ From our height and weight graphs, we saw that there was a larger preference for
 We will use a t-test on data that is both unaltered and data that is filtered for just the 2000-2006 seasons. If the subset has higher interval ranges, then that would mean the rebound mean would be higher in those 6 seasons, meaning that taller and heavier players are likely more valued during that time period. 
 
 ```{r clt-rebounds}
-draft_data %>%
+ttest <- draft_data %>%
   t_test(response = reb,
-  conf_int = TRUE, conf_level = 0.95)
+  conf_int = TRUE, conf_level = 0.95)%>%
+  print()
 ```
 
-Using a two-sided t-test with a test statistic of 47.33 and 1198-1 = 1197 degrees of freedom, we found a p-value of 1.96e-276 and a confidence interval of [2.48, 2.69]. We are 95% confident that the mean number of rebounds for players is between 2.48 to 2.69. If we were to repeatedly and independently sample from the original population and construct 95% CIs in the same way, we would expect 95% of such intervals to truly contain the population mean.
+Using a two-sided t-test with a test statistic of `r round(ttest$statistic, 3)` and `r round(ttest$t_df, 0)` degrees of freedom, we found a p-value of `r round(ttest$p_value, 3)` and a confidence interval of [`r round(ttest$lower_ci, 3)`, `r round(ttest$upper_ci, 3)`]. We are 95% confident that the mean number of rebounds for players is between `r round(ttest$lower_ci, 3)` to `r round(ttest$upper_ci, 3)`. If we were to repeatedly and independently sample from the original population and construct 95% CIs in the same way, we would expect 95% of such intervals to truly contain the population mean.
 
 ```{r clt-early200s-rebounds}
-draft_data %>%
+temp <- draft_data %>%
   filter(short_season >= 2000) %>%
   filter(short_season <= 2006) %>%
   t_test(response = reb,
-  conf_int = TRUE, conf_level = 0.95)
+  conf_int = TRUE, conf_level = 0.95)%>%
+  print()
 ```
 
-Using a two-sided t-test with a test statistic of 26.30 and 356-1 = 355 degrees of freedom, we found a p-value of 2.39e-85 and a confidence interval of [2.28, 2.65]. We are 95% confident that the mean number of rebounds for players from the early 2000s (years 2000-2006) is 2.28 to 2.65. If we were to repeatedly and independently sample from the original population and construct 95% CIs in the same way, we would expect 95% of such intervals to truly contain the population mean.
+Using a two-sided t-test with a test statistic of `r round(temp$statistic, 3)` and `r round(temp$t_df, 0)` degrees of freedom, we found a p-value of `r round(temp$p_value, 3)` and a confidence interval of [`r round(temp$lower_ci, 3)`, `r round(temp$upper_ci, 3)`]. We are 95% confident that the mean number of rebounds for players from the early 2000s (years 2000-2006) is `r round(temp$lower_ci, 3)` to `r round(temp$upper_ci, 3)`. If we were to repeatedly and independently sample from the original population and construct 95% CIs in the same way, we would expect 95% of such intervals to truly contain the population mean.
 
 However, our confidence interval ranges are lower for the dataset with only the 2000-2006 seasons, implying that taller and heavier players are not as valued since confidence intervals and p-values have a 1 to 1 correspondence. 
 
