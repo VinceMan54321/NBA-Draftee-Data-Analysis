@@ -20,27 +20,27 @@ nba <- read_csv("data/all_seasons.csv")
 ```
 
 
-Section 1) Introduction and Data
+**Section 1: Introduction and Data**
 
 Our dataset consists of various statistics for every player who has played in the NBA within the 1996-2020 seasons, ranging from their home country and college of origin, draft year and round, and various stats such as average points, rebounds, and assists per game. 
 
 This dataset was found on Kaggle (https://www.kaggle.com/justinas/nba-players-data) and was originally collected using the NBA Stats API by Justinas Cirtautus, who created this dataset by filling in missing rows of data manually using data from the Basketball Reference website.
 
-Each observation/case in the dataset represents a player and their corresponding qualities/ draft stats/game stats for a specific season. Some variables such as draft number remain constant while other such as ppg change depending on the season. A player who played for ten seasons within the timespan analyzed will have ten observations. The variables in the dataset include different aspects pertaining to the player- whether it be information about how/ when they were drafted, what country and college they are from, physical characteristics (height, weight), and game stats (number of games played, rebounds).
+Each observation/case in the dataset represents a player and their corresponding qualities/ draft stats/game stats for a specific season. A player who played for 10 seasons within the analyzed timespan will have 10 observations. Some variables such as 'draft number' remain constant, while others such as 'ppg' change depending on the season. The variables in the dataset include different aspects pertaining to the player--including information about how/when they were drafted, what country/college they are from, physical characteristics (height, weight), and game stats (number of games played, rebounds).
 
-Basketball is a constantly evolving game, and how NBA players played twenty years ago vs today vary tremendously. From the rise of the three point shooter to the fall of the big man, it's amazing how a game's rules can be so fluid over time. Our group wishes to use this dataset to try and find more about how the highest flight of professional basketball has evolved over the years. Check the following article for more information: https://www.espn.com/nba/story/_/id/29113310/seven-ways-nba-changed-michael-jordan-bulls. 
+Basketball is a constantly evolving game, and how NBA players played twenty years ago vs today is vastly different. From the rise of the three-point shooter to the fall of the big man, it is amazing how a game's rules can be so fluid over time. Our group sought to use this dataset to try and find more about how the highest flight of professional basketball has evolved over the years. Check the following article for more information: https://www.espn.com/nba/story/_/id/29113310/seven-ways-nba-changed-michael-jordan-bulls. 
 
 Research Question: How have the quality traits NBA teams desire in a draftee changed over time? 
 
-We will be looking at season to determine the time, the draft round and number to determine the relative importance of each player, and a way to combine a player's height, weight, and ingame statistical information in order to present an ideal position or skillset desired by teams for that draft year. 
+We will be looking at season to determine the time, the draft round and number to determine the relative importance of each player, and a way to combine a player's height, weight, and in-game statistical information in order to present an ideal position or skillset desired by teams for that draft year. 
 
-Our general hypothesis is that over the past twenty or so seasons, shorter and lighter players have been prioritized in drafts. Scoring, assisting, and true shooting averages will also likely have an upwards trend, while rebounding will probably have a downwards trend. Teams will have shifted from desiring a tall and heavy rebounder and shot-blocker towards a smaller and quicker shooter with more offensive capabilities. 
+Our general hypothesis is that over the past twenty or so seasons, shorter and lighter players have been prioritized in drafts. Scoring, assisting, and true shooting averages will also likely have an upwards trend, while rebounding will likely trend downwards. Teams will have shifted from desiring a tall and heavy rebounder and shot-blocker towards a smaller and quicker shooter with more offensive capabilities. 
 
-Section 2) Methodology and Data
+**Section 2: Methodology and Data**
 
-If we take a closer look at our data set by year, we can see that although there are some outliers, consistent data on players across the league started being kept around the year 1981.  For this reason, we will pick 1996 as our start year for our analysis and filter out any recorded data from before 1996.  We will also cap off our analysis before the 2019 season, as that season was ongoing at the time of upload, so metrics like gp, pts, reb, etc. would not be complete.  
+Taking a closer look at our data set by year, we can see that although there are some outliers, consistent data on players across the league began to be recorded around the year 1981. For this reason, we will pick 1996 as the starting year for our analysis and filter out any recorded data from before 1996. We will also cap our analysis at before the 2019 season, as that season was ongoing at the time of upload, so metrics such as gp, pts, reb, etc. would not be complete.
 
-This data set is biased towards the offensive side of the ball, with there being no defensive statistics such as blocks or steals in this data set, so contributions given by players who devoted much of their time to the defensive side of the ball might be neglected.  
+This data set is biased towards the offensive side of the ball, as it lacks defensive statistics such as blocks or steals. Therefore, the contributions of players focused on the defensive side may be neglected.  
 
 ```{r draft-dataset}
 draft_data <- nba %>%
@@ -50,7 +50,6 @@ draft_data <- nba %>%
 ```
 
 ```{r new-var}
-
 draft_data <- draft_data %>%
   mutate(draft_group = case_when(
     draft_number <= 10 ~ "1 - 10",
@@ -105,7 +104,7 @@ Weight and height traditionally correlate with different positions in basketball
 
 To move on in this investigation, it would be a wise idea to use statistical testing to determine how the selection and prioritization of guards has changed over time. We will be using both simulations of null distributions and t-testing using Central Limit Theorem to find confidence intervals, more data visualizations, and most importantly, p-values. 
 
-Section 3) Results
+**Section 3: Results**
 
 ```{r newvar-guards}
 draft_data <- draft_data %>%
@@ -250,7 +249,7 @@ Using a two-sided t-test with a test statistic of `r round(temp$statistic, 3)` a
 However, our confidence interval ranges are lower for the dataset with only the 2000-2006 seasons, implying that taller and heavier players are not as valued since confidence intervals and p-values have a 1 to 1 correspondence. 
 
 
-Section 4) Discussion and Conclusion
+**Section 4: Discussion and Conclusion**
 
 We learned that taller and heavier NBA players did not have a higher preference from the 2000-2006 seasons, even though it was implied by our visualization graphs of height and weight over the seasons and categorized by draft group. This was shown by our CLT test results, which showed that the 95% confidence interval for the early 2000s, [2.28, 2.65], had lower values than that of the overall data set, which was [2.48, 2.69]. 
 
