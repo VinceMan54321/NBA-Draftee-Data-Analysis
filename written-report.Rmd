@@ -115,15 +115,15 @@ draft_data <- draft_data %>%
     dreb_pct > .2 | ast < 5 ~ "not guard"))
 ```
 
-Backcourt players or guards typically move the ball around a lot in order to deliver it to forwards or centers who then score the ball. They typically have lot of assists and fewer defensive rebounds since they are typically located at the back of the court during an offensive scheme. 
+Backcourt players or guards typically move the ball around frequently in order to deliver it to forwards or centers, who then score with the ball. They typically have many assists and fewer defensive rebounds, since they are usually located at the back of the court during an offensive play. 
 
-Thus, we have created a new variable called guards that classifies if a rookie player is a guard or not. Our parameters for this are 5 assists per game and 20% defensive rebounding percentage. If a player has an assists per game average of 5 or greater and a defensive rebounding percentage of 20% or less, then they are considered a guard. Otherwise, they are not a guard and are a forward or center. 
+Thus, we have created a new variable called 'guards', which classifies if a rookie player is a guard or not. Our cutoff for this classification is 5 assists per game and a 20% defensive rebounding percentage. If a player has an average of 5 or more assists per game and a defensive rebounding percentage of 20% or less, then they are considered a guard. Otherwise, they are not a guard and are a forward or center. 
 
-We will test preferences for picking guards and ask: Are more guards picked in the first draft round? Has the preference for guards shifted over time (is a greater proportion of guards picked in later seasons)? 
+We will test preferences for picking guards, and ask the following questions: Are more guards picked in the first draft round? Has the preference for guards shifted over time (is a greater proportion of guards picked in later seasons)? 
 
 Null Hypothesis: The proportion of guards picked in the first round is equal to the proportion of guards picked in the second round.
 
-Alternate Hypothesis: The proportion of guards picked in the first round is greater to the proportion of guards picked in the second round.
+Alternate Hypothesis: The proportion of guards picked in the first round is greater than the proportion of guards picked in the second round.
 
 $H_0: p_1 = p_2$
 
@@ -151,36 +151,37 @@ obs_diff <- draft_data  %>%
 filter(draft_round == 1 | draft_round == 2) %>%
 specify(draft_round ~ guards, success = "1") %>%
   calculate(stat = "diff in props",
-            order = c("not guard", "guard"))
+            order = c("not guard", "guard"))%>%
+  pull()
 
 p_val <- boot_diffs %>%
   mutate(extreme = ifelse(stat > obs_diff, 0, 1)) %>%
   summarize(p_val = mean(extreme)) %>%
   print()
 
-obs_diff = unlist(obs_diff)
 ggplot(data = boot_diffs, aes(x = stat)) +
-  geom_histogram(binwidth = 0.05, color = "darkblue", fill = "skyblue") +
-  geom_vline(xintercept = c(ci1$lower, ci1$upper), color = "darkred", lwd = 1) +
-  geom_vline(xintercept = c(obs_diff), color = "black", lwd = 1) +
-  labs(x = "Proportional Difference", y = "Count",
-       title = "Proportions of Guards Picked in 1st and 2nd Rounds",
-       subtitle = "1,000 bootstrap simulations with 95% CI shown")
+  geom_histogram(binwidth = 0.05, color = "skyblue", fill = "black") +
+  geom_vline(xintercept = obs_diff, color = "red", lwd = 1) +
+  geom_vline(mapping=aes(xintercept = ci1$lower, color = "red")) +
+  geom_vline(mapping=aes(xintercept = ci1$upper, color = "red")) +
+  labs(x = "Difference in Proportion", y = "Count",
+       title = "Simulation-Based Null Distribution of Differences in Proportions",
+       subtitle = "For NBA Guards Picked in 1st vs. 2nd Rounds",
+       color = "95% CI Bounds")+
+  theme_bw()
 ```
-Our p-value was about `r p_val`, and so we reject the null hypothesis at the a = 0.05 level. This is further backed by our confidence interval, [`r round(ci1$lower, 3)`, `r round(ci1$upper, 3)`], and our null distribution graph, which shows that our observed difference is outside the confidence interval. There is sufficient evidence to suggest that a larger proportion guards of guards were picked in the first round compared to the second round, meaning that skilled guards in general are likely more valued than forwards and centers.
+Our p-value was about `r p_val`, and so we reject the null hypothesis at the a = 0.05 level. This decision is further supported by our 95% confidence interval, [`r round(ci1$lower, 3)`, `r round(ci1$upper, 3)`], and our null distribution graph, which shows that our observed difference is outside the confidence interval. There is sufficient evidence to suggest that a larger proportion of guards were picked in the first round compared to the second round, indicating that in general, skilled guards are likely more valued than forwards and centers.
 
-We shall now test whether guards were consistently valued over the past twenty seasons, or if certain time periods had different values in what NBA teams wanted in a player. We can do this by comparing the mean of the season for both guards and frontcourt players to see which is higher or lower, if either. 
+We now test whether guards were consistently valued over the past 20 seasons, or if the players NBA teams valued were different in certain time periods. We can do this by comparing the mean of the season for both guards and frontcourt players to see which is higher or lower, if either. We will simulate a null distribution of differences in means, using 2500 samples.
 
-Null Hypothesis: The mean year of guards who were drafted is not different than that of non-guards (frontcourt players) who were drafted. 
+Null Hypothesis: The mean year of guards who were drafted is not different from that of non-guards (frontcourt players) who were drafted. 
 
-Alternative Hypothesis: The mean year of guards who were drafted is different than that of non-guards (frontcourt players) who were drafted. 
+Alternative Hypothesis: The mean year of guards who were drafted is different from that of non-guards (frontcourt players) who were drafted. 
 
 $H_0: \mu_1 = \mu_2$
 
 $H_a: \mu_1 \neq \mu_2$
 
-
-Similar to the previous test, we will use a simulation of a null distribution. However, this time, it will be of a difference in means. We will use 2500 samples and visualize them on a graph, along with a 95% confidence interval. 
 ```{r guards-year}
 set.seed(2)
 
@@ -202,29 +203,29 @@ yes <- draft_data %>%
 no <- draft_data %>%
   filter(guards == "not guard")
 
-obs_diff2 <- mean(yes$short_season) - mean(no$short_season)
+obs_diff <- mean(yes$short_season) - mean(no$short_season)
 
 p_val <- null_dist %>%
   filter(stat > obs_diff) %>%
   summarise(p_val = n()/nrow(null_dist)) %>%
   print()
 
-obs_diff2 = unlist(obs_diff2)
 ggplot(data = null_dist, aes(x = stat)) +
-  geom_histogram(binwidth = 0.20, color = "darkblue", fill = "skyblue") +
-  geom_vline(xintercept = c(ci2$lower, ci2$upper), color = "darkred", lwd = 1) +
-  geom_vline(xintercept = c(obs_diff2), color = "black", lwd = 1) +
-  labs(x = "Mean Year", y = "Count",
-       title = "Difference in Means of Seasons Between Guards and Non-Guards",
-       subtitle = "2,500 bootstrap simulations with 95% CI shown")
+  geom_histogram(binwidth = 0.20, color = "skyblue", fill = "black") +
+  geom_vline(xintercept = obs_diff, color = "red", lwd = 1) +
+  geom_vline(mapping=aes(xintercept = ci2$lower, color = "red")) +
+  geom_vline(mapping=aes(xintercept = ci2$upper, color = "red")) +
+  labs(x = "Difference in Means", y = "Count",
+       title = "Simulation-Based Null Distribution of Differences in Means",
+       subtitle = "Of the Years that NBA Guards vs. Non-Guards were Drafted",
+       color = "95% CI Bounds")+
+  theme_bw()
 ```
-Our confidence interval was [`r round(ci2$lower, 3)`, `r round(ci2$upper, 3)`]. Our null distribution graph shows that our observed difference in means is approximately in the middle of the confidence interval, which shows that we will likely not be able to reject our null hypothesis. 
+Our p-value was `r p_val`, which is much greater than a = 0.05, and so we fail to reject our null hypothesis. There is not sufficient evidence to suggest that the mean year of guards who were drafted is different from that of non-guards (frontcourt players) who were drafted. In the context of our research question, there is not sufficient evidence to suggest that NBA teams' preferences have shifted towards picking guards during the first draft round.
 
-This is proven by our p-value, `r p_val`, which is much greater than 0.05, so we fail to reject our null hypothesis. Therefore, there is no sufficient evidence that the mean year of guards who were drafted is either different or not different than non guards who were drafted. In the context of our research question, there is not sufficient evidence to prove that there has been a shift in preferences to prefer picking guards during the first draft round. 
+Because our findings have so far not been conclusive, we will now attempt to analyze whether frontcourt players were more valued in certain seasons based on our visualizations in Section 1. 
 
-In order to move on from our disheartening lack of results, we will attempt to analyze whether frontcourt players were more valued in certain seasons based off our visualizations in Section 1. 
-
-From our height and weight graphs, we saw that there was a larger preference for players who were taller and weighed more in the early 2000s (from about 2000 to 2006). We will test whether this preference for taller and heavier players influences the number of rebounds using the Central Limit Theorem. 
+From our height and weight graphs, we observed that there was a stronger preference for players who were taller and weighed more in the early 2000s (from about 2000 to 2006). We will test whether this preference for taller and heavier players influences the number of rebounds using the Central Limit Theorem. 
 
 We will use a t-test on data that is both unaltered and data that is filtered for just the 2000-2006 seasons. If the subset has higher interval ranges, then that would mean the rebound mean would be higher in those 6 seasons, meaning that taller and heavier players are likely more valued during that time period. 
 
