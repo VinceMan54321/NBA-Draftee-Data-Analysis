@@ -26,7 +26,7 @@ Our dataset consists of various statistics for every player who has played in th
 
 This dataset was found on Kaggle (https://www.kaggle.com/justinas/nba-players-data) and was originally collected using the NBA Stats API by Justinas Cirtautus, who created this dataset by filling in missing rows of data manually using data from the Basketball Reference website.
 
-Each observation/case in the dataset represents a player and their corresponding qualities/ draft stats/game stats for a specific season. A player who played for 10 seasons within the analyzed timespan will have 10 observations. Some variables such as 'draft number' remain constant, while others such as 'ppg' change depending on the season. The variables in the dataset include different aspects pertaining to the player--including information about how/when they were drafted, what country/college they are from, physical characteristics (height, weight), and game stats (number of games played, rebounds).
+Each observation/case in the dataset represents a player and their corresponding qualities/ draft stats/game stats for a specific season. A player who played for 10 seasons within the analyzed timespan will have 10 observations. Some variables such as draft number remain constant, while others such as ppg change depending on the season. The variables in the dataset include different aspects pertaining to the player--including information about how/when they were drafted, what country/college they are from, physical characteristics (height, weight), and game stats (number of games played, rebounds).
 
 Basketball is a constantly evolving game, and how NBA players played twenty years ago vs today is vastly different. From the rise of the three-point shooter to the fall of the big man, it is amazing how a game's rules can be so fluid over time. Our group sought to use this dataset to try and find more about how the highest flight of professional basketball has evolved over the years. Check the following article for more information: https://www.espn.com/nba/story/_/id/29113310/seven-ways-nba-changed-michael-jordan-bulls. 
 
@@ -38,9 +38,9 @@ Our general hypothesis is that over the past twenty or so seasons, shorter and l
 
 **Section 2: Methodology and Data**
 
-Taking a closer look at our data set by year, we can see that although there are some outliers, consistent data on players across the league began to be recorded around the year 1981. For this reason, we will pick 1996 as the starting year for our analysis and filter out any recorded data from before 1996. We will also cap our analysis at before the 2019 season, as that season was ongoing at the time of upload, so metrics such as gp, pts, reb, etc. would not be complete.
+Taking a closer look at our data set by year, we can see that although there are some outliers, consistent data on players across the league began to be recorded around the year 1981. For this reason, we will pick 1996 as the starting year for our analysis and filter out any recorded data from before 1996. We also cap our analysis at before the 2019 season, as the 2019 season was ongoing at the time of upload, so metrics such as gp, pts, reb, etc. would not be complete.
 
-This data set is biased towards the offensive side of the ball, as it lacks defensive statistics such as blocks or steals. Therefore, the contributions of players focused on the defensive side may be neglected.  
+Note that this data set is biased towards the offensive side of the ball, as it lacks defensive statistics such as blocks or steals. Therefore, the contributions of players focused on the defensive side may be neglected.  
 
 ```{r draft-dataset}
 draft_data <- nba %>%
@@ -64,13 +64,13 @@ draft_data <- draft_data %>%
 
 ```
 
-To start, we will create a new dataset with just newly drafted players called draft_data. This will remove all returning players to allow us to simply look at how drafting has changed from 1981 to 2018 and to try to view what qualities NBA teams value over time. We essentially only took in the rookie seasons of players in the dataset by filtering in only the observations that had a player's smallest age, which would correspond to their rookie season. We also removed data from the latest season since the info at the time of collection was still not complete as the season was still ongoing. 
+To begin, we create a new dataset called 'draft_data', which contains only newly drafted players. With the removal of all returning players, we are able to examine how drafting has changed from 1981 to 2018 and study what qualities NBA teams value over time. We essentially only took in the rookie seasons of players in the dataset by filtering in only the observations that had a player's smallest age, which would correspond to their rookie season. We also remove data from the latest season since the information at the time of collection was still not complete due to the ongoing season. 
 
-We shall also group all the draft picks by multiples of ten (ie: picks 1-10, 11-20, etc...) in order to organize the data more efficiently. These groups will be referred to as draft groups for the remainder of this report. 
+Next, we group all of the draft picks by multiples of ten (ie: picks 1-10, 11-20, etc...) in order to organize the data more efficiently. These groups will be referred to as 'draft groups' for the remainder of this report. 
 
-We shall now group by both season and draft group, and find the mean of both height and weight, the two most obvious physical characteristics of an NBA player, for each season and draft group. We will graph these over time, with the draft groups differentiated by color, in order to determine if NBA teams' value of height and weight have changed at all over time. 
+We then group by both season and draft group, and find the mean of both height and weight--the two most obvious physical characteristics of an NBA player--for each season and draft group. We will graph these over time, with the draft groups differentiated by color, in order to determine if NBA teams' value of height and weight have changed at all over time. 
 
-We will be using scatterplots with smoothing lines, which we deemed to be the most appropriate graph due to the fact that we are trying to find how both height and weight change over time, which is comparing two quantitative variables. It is important to note that although the season, our measurement of time, is technically stored as categorical information in the dataset, we can treat it as quantitative since R will order it numerically anyway. This is because we mutated the season variable to include just the first four characters, which is just the first year of the NBA season as NBA seasons run between two years. 
+We will be using scatterplots with smoothing lines to find how height and weight change over time, which we deemed to be the most appropriate graph because height and weight are both quantitative variables. It is important to note that although the season (our measurement of time) is technically stored as categorical information in the dataset, we can treat it as quantitative because R will order it numerically regardless. This is because we mutated the season variable to include just the first four characters, which is just the first year of the NBA season as NBA seasons run between two years. 
 
 ```{r height-visualization, fig.width=10, fig.height=10}
 
@@ -80,8 +80,10 @@ draft_data <- draft_data %>%
 
 ggplot(data = draft_data, aes(x = short_season, y = mean_height, 
        color = draft_group)) + geom_point() + 
-  labs(x = "Season", y = "Height (cm)", title = "Height vs Season",
-  subtitle = "of NBA rookies from 1996-2019", color = "Group of Ten Picks") +             geom_smooth(aes(group = draft_group))
+  labs(x = "Season (Year)", y = "Height (cm)", title = "Height vs. Season",
+  subtitle = "of NBA rookies from 1996-2019", color = "Group of Ten Picks") +             
+  geom_smooth(aes(group = draft_group)) +
+  theme_bw()
 
 ```
 
@@ -93,16 +95,16 @@ draft_data <- draft_data %>%
 
 ggplot(data = draft_data, aes(x = short_season, y = mean_weight, 
        color = draft_group)) + geom_point() + 
-  labs(x = "Season", y = "Weight (kg)", title = "Weight vs Season",
-  subtitle = "of NBA rookies from 1996-2019", color = "Group of Ten Picks") +             geom_smooth(aes(group = draft_group))
+  labs(x = "Season", y = "Weight (kg)", title = "Weight vs. Season",
+  subtitle = "of NBA rookies from 1996-2019", color = "Group of Ten Picks") +             
+  geom_smooth(aes(group = draft_group))+
+  theme_bw()
 
 ```
 
-For further information, "NA" refers to players who were undrafted but still picked up by an NBA team. Based off of the two visualizations, it seems that both height and weight similarly changed over time. Both appeared to increase for the first few seasons and then decrease for the next few seasons, and then increase once again for latest few seasons from 1996 to 2019. This pattern was especially noticeable for picks 1-10, which are the most valuable picks. There appears to be no overall trend that occurs over the past twenty or so seasons for both weight and height.
+Note that "NA" refers to players who were undrafted, but still picked up by an NBA team. Based on the two visualizations, it seems that both height and weight similarly changed over time. Both appeared to increase for the first few seasons, decrease for the next few seasons, and then increase once again for the latest few seasons from 1996 to 2019. This pattern was especially noticeable for picks 1-10, which are the most valuable picks. There appears to be no overall trend that occurs over the past twenty or so seasons for both weight and height.
 
-Weight and height traditionally correlate with different positions in basketball, with the guards, or backcourt, being smaller and lighter and the forwards and centers, or frontcourt, being heavier and taller. To move forward, we shall attempt to test how the value of both the frontcourt and the backcourt has changed over time.
-
-To move on in this investigation, it would be a wise idea to use statistical testing to determine how the selection and prioritization of guards has changed over time. We will be using both simulations of null distributions and t-testing using Central Limit Theorem to find confidence intervals, more data visualizations, and most importantly, p-values. 
+Weight and height traditionally correlate with different positions in basketball, with the guards, or backcourt, being smaller and lighter and the forwards and centers, or frontcourt, being heavier and taller. To move forward, we will attempt to test how the value of both the frontcourt and the backcourt has changed over time, using statistical testing to determine how the selection and prioritization of guards has changed over time. We will be using both simulations of null distributions, and t-tests using the Central Limit Theorem, to find confidence intervals, more data visualizations, and most importantly, p-values. 
 
 **Section 3: Results**
 
