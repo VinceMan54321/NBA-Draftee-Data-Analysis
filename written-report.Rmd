@@ -80,7 +80,7 @@ draft_data <- draft_data %>%
 
 ggplot(data = draft_data, aes(x = short_season, y = mean_height, 
        color = draft_group)) + geom_point() + 
-  labs(x = "Season (Year)", y = "Height (cm)", title = "Height vs. Season",
+  labs(x = "Season", y = "Height (cm)", title = "Height vs. Season",
   subtitle = "of NBA rookies from 1996-2019", color = "Group of Ten Picks") +             
   geom_smooth(aes(group = draft_group)) +
   theme_bw()
@@ -225,9 +225,9 @@ Our p-value was `r p_val`, which is much greater than a = 0.05, and so we fail t
 
 Because our findings have so far not been conclusive, we will now attempt to analyze whether frontcourt players were more valued in certain seasons based on our visualizations in Section 1. 
 
-From our height and weight graphs, we observed that there was a stronger preference for players who were taller and weighed more in the early 2000s (from about 2000 to 2006). We will test whether this preference for taller and heavier players influences the number of rebounds using the Central Limit Theorem. 
+From our height and weight graphs, we observed that there was a stronger preference for players who were taller and weighed more in the early 2000s (from about 2000 to 2006). We will test whether this preference for taller and heavier players influences the number of rebounds, using the Central Limit Theorem. 
 
-We will use a t-test on data that is both unaltered and data that is filtered for just the 2000-2006 seasons. If the subset has higher interval ranges, then that would mean the rebound mean would be higher in those 6 seasons, meaning that taller and heavier players are likely more valued during that time period. 
+We will use a t-test on data that is both unaltered and data that includes only the 2000-2006 seasons. If the subset has higher interval ranges, then that would mean the rebound mean would be higher in those 6 seasons, suggesting that taller and heavier players were likely more valued during that time period. 
 
 ```{r clt-rebounds}
 ttest <- draft_data %>%
@@ -236,7 +236,7 @@ ttest <- draft_data %>%
   print()
 ```
 
-Using a two-sided t-test with a test statistic of `r round(ttest$statistic, 3)` and `r round(ttest$t_df, 0)` degrees of freedom, we found a p-value of `r round(ttest$p_value, 3)` and a confidence interval of [`r round(ttest$lower_ci, 3)`, `r round(ttest$upper_ci, 3)`]. We are 95% confident that the mean number of rebounds for players is between `r round(ttest$lower_ci, 3)` to `r round(ttest$upper_ci, 3)`. If we were to repeatedly and independently sample from the original population and construct 95% CIs in the same way, we would expect 95% of such intervals to truly contain the population mean.
+Using a two-sided t-test with a test statistic of `r round(ttest$statistic, 3)` and `r round(ttest$t_df, 0)` degrees of freedom, we found a p-value of `r round(ttest$p_value, 3)` and a confidence interval of [`r round(ttest$lower_ci, 3)`, `r round(ttest$upper_ci, 3)`]. We are 95% confident that the mean number of rebounds for players falls between `r round(ttest$lower_ci, 3)` and `r round(ttest$upper_ci, 3)`. If we were to repeatedly and independently sample from the original population and construct 95% CIs in the same way, we would expect 95% of such intervals to truly contain the population mean.
 
 ```{r clt-early200s-rebounds}
 temp <- draft_data %>%
@@ -247,32 +247,29 @@ temp <- draft_data %>%
   print()
 ```
 
-Using a two-sided t-test with a test statistic of `r round(temp$statistic, 3)` and `r round(temp$t_df, 0)` degrees of freedom, we found a p-value of `r round(temp$p_value, 3)` and a confidence interval of [`r round(temp$lower_ci, 3)`, `r round(temp$upper_ci, 3)`]. We are 95% confident that the mean number of rebounds for players from the early 2000s (years 2000-2006) is `r round(temp$lower_ci, 3)` to `r round(temp$upper_ci, 3)`. If we were to repeatedly and independently sample from the original population and construct 95% CIs in the same way, we would expect 95% of such intervals to truly contain the population mean.
+Using a two-sided t-test with a test statistic of `r round(temp$statistic, 3)` and `r round(temp$t_df, 0)` degrees of freedom, we found a p-value of `r round(temp$p_value, 3)` and a confidence interval of [`r round(temp$lower_ci, 3)`, `r round(temp$upper_ci, 3)`]. We are 95% confident that the mean number of rebounds for players from the early 2000s (years 2000-2006) falls between `r round(temp$lower_ci, 3)` and `r round(temp$upper_ci, 3)`. If we were to repeatedly and independently sample from the original population and construct 95% CIs in the same way, we would expect 95% of such intervals to truly contain the population mean.
 
 However, our confidence interval ranges are lower for the dataset with only the 2000-2006 seasons, implying that taller and heavier players are not as valued since confidence intervals and p-values have a 1 to 1 correspondence. 
 
-
 **Section 4: Discussion and Conclusion**
 
-We learned that taller and heavier NBA players did not have a higher preference from the 2000-2006 seasons, even though it was implied by our visualization graphs of height and weight over the seasons and categorized by draft group. This was shown by our CLT test results, which showed that the 95% confidence interval for the early 2000s, [2.28, 2.65], had lower values than that of the overall data set, which was [2.48, 2.69]. 
+We learned that taller and heavier NBA players were not more preferred in the 2000-2006 seasons, despite the implications of our height and weight graphs over seasons, categorized by draft group. We reached this conclusion through our CLT test results, which showed that the 95% confidence interval for the early 2000s, [2.28, 2.65], had lower values than that of the overall data set, which was [2.48, 2.69]. 
 
-We also learned that the proportion of guards picked in the first round was greater than that of guards picked in the second round. We know this from our simulation null distribution, which had a p-value of about 0, which is lower than the 0.05 alpha level we tested it on. Thus we know that guards are generally prioritized by NBA teams during the draft process.
+We also learned that the proportion of guards picked in the first round was greater than that of guards picked in the second round. Because our p-value for the test we used was 0, which was lower than our significance level of 0.05, we concluded that guards are generally prioritized by NBA teams during the draft process.
 
-However, we also learned that there is no relation between prioritizing guards and frontcourt players over the years. We know this from our other simulation null distribution, which had a p-value of 0.634, which is much bigger than the 0.05 alpha level we tested our statistics on. Overall, we learned about our research question that NBA teams generally prefer guards over frontcourt players, but that drafting patterns have generally similar over the past 20 seasons. 
+However, we also learned that there is no relation between prioritizing guards and frontcourt players over the years. Because our p-value for the test we used was 0.634, which was much larger than our significance level of 0.05, we reached the conclusion that NBA teams tend to prefer guards over frontcourt players, but also that drafting patterns have generally been similar over the past 20 seasons. 
 
-Our data visualization methods in Section 1 could use some improvement. Although we were able to map out draft picks over twenty years groups by draft groups, the margins of error were fairly large as seen by the shaded regions around our smoothing lines. This proves that our visualization was not completely reliable or valid, which is definitely a problem. This could probably be fixed through having several visualizations over a few seasons at a time rather than trying to represent the entire dataset within one graph. 
+Our data visualization methods in Section 1 were not as reliable or precise as we would have hoped. Although we were able to map out draft picks over twenty years groups by draft groups, the margins of error were fairly large as seen by the shaded regions around our smoothing lines. We might address this issue by creating visualizations for several seasons at a time, rather than trying to represent the entire dataset with one graph. 
 
-Our CLT t-tests are also probably lacking in validity and reliability. We did not use proper inference procedures and compare the rebounding averages to another statistic, and only compared the two confidence intervals in order to make our conclusion. This is probably not very accurate since we did not use any p-value, even though confidence intervals and p-values have a 1 to 1 correspondence. Due to that, our analysis should still be somewhat correct, but a proper simulation or a more detailed CLT t-test would probably be more accurate. 
+Our CLT t-tests were also lacking in validity and reliability. We did not compare the rebounding averages to another statistic, and only compared the two confidence intervals in order to make our conclusion. This is likely not very accurate since we did not use p-values. However, since confidence intervals and p-values have a 1 to 1 correspondence, our analysis should still be somewhat correct, although a proper simulation or a more detailed CLT t-test would likely be more accurate. 
 
-Our null distribution simulations are probably the most accurate and reliable part of our statistical analysis. The only thing we could improve at in this aspect would be to increase the number of samples per simulation. 
+Our null distribution simulations are probably the most accurate and reliable part of our statistical analysis. To improve in this aspect, we might increase the number of samples per simulation.
 
-Something we would do differently if we were to redo this experiment would be to try to filter out our data more, since even after we filtered out every non rookie player in the massive dataset, we still had about 1200 observations, which is a massive number that would be prone to errors and outliers. 
+If we were to redo this analysis, we would try to filter our data more. Even after we filtered out every non-rookie player in our large dataset, we still had about 1200 observations, which is large enough to increase the probability of errors and outliers. We would also try to facet our data and then graph it to facilitate ease of analysis and interpretation.
 
-We could also try to facet our data and then graph it instead of having the congested visualization graphs we currently have in Section 1. This would make our data easier to read and analyze. 
+In the future, we want to analyze age and how the age of NBA draftees has--or has not--changed over time. The debate between going pro as soon as possible or staying four years at a Division 1 college is a major point of contention, and it would be an interesting question to explore.
 
-Something we would do in the future for this experiment would be to analyze age and how the age of draftees has or has not changed over time. The debate between going pro as soon as possible or staying four years at a D1 college is a major sports debate right now, and it would be an interesting question to explore.
-
-We could also have more inference testing related to frontcourt positions, since we focused on a lot more than intended on the backcourt for this lab report. Many famous players right now such Lebron James or Kevin Durant are all frontcourt players, so it would be another interesting aspect of this topic to explore. 
+We could also have more inference testing related to frontcourt positions, since we focused on a lot more than intended on the backcourt for this lab report. Many famous players right now such Lebron James or Kevin Durant are all frontcourt players, so it would be interesting to explore that particular aspect of the NBA.
 
 
 
