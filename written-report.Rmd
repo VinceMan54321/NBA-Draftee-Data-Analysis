@@ -1,6 +1,6 @@
 ---
 title: "Investigating NBA Draftee Priorities Over Time"
-author: "Team Name: Ashir Raza, Vincent Huang, Mina Kim, Elizabeth Berenguer"
+author: "Free Ducks: Ashir Raza, Vincent Huang, Mina Kim, Elizabeth Berenguer"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
@@ -24,7 +24,7 @@ nba <- read_csv("data/all_seasons.csv")
 
 Our dataset consists of various statistics for every player who has played in the NBA within the 1996-2020 seasons, ranging from their home country and college of origin, draft year and round, and various stats such as average points, rebounds, and assists per game. 
 
-This dataset was found on Kaggle (https://www.kaggle.com/justinas/nba-players-data) and was originally collected using the NBA Stats API by Justinas Cirtautus, who created this dataset by filling in missing rows of data manually using data from the Basketball Reference website.
+This dataset was found on Kaggle (https://www.kaggle.com/justinas/nba-players-data) and was originally collected using the NBA Stats API by Justinas Cirtautus, who created this dataset by filling in missing rows of data manually using data from the Basketball Reference website. This data was collected in March 2020, during the midst of the 2019-2020 NBA season. 
 
 Each observation/case in the dataset represents a player and their corresponding qualities/ draft stats/game stats for a specific season. A player who played for 10 seasons within the analyzed timespan will have 10 observations. Some variables such as draft number remain constant, while others such as ppg change depending on the season. The variables in the dataset include different aspects pertaining to the player--including information about how/when they were drafted, what country/college they are from, physical characteristics (height, weight), and game stats (number of games played, rebounds).
 
@@ -58,11 +58,11 @@ ast: Average number of assists distributed
 
 dreb_pct: Percentage of available defensive rebounds the player grabbed while he was on the floor
 
-season: NBA season
+season: NBA season (number is the year the season started)
 
 **Section 2: Methodology and Data**
 
-Taking a closer look at our data set by year, we can see that although there are some outliers, consistent data on players across the league began to be recorded around the year 1996. For this reason, we will pick 1996 as the starting year for our analysis and filter out any recorded data from before 1996. We also cap our analysis at before the 2019 season, as the 2019 season was ongoing at the time of upload, so metrics such as gp, pts, reb, etc. would not be complete.
+We picked 1996 as the starting year for our analysis since that's the season during which the dataset begins collection. We then filtered out any recorded data from before 1996. We also capped our analysis before the 2019 season, as the 2019-2020 season was ongoing at the time of upload, so metrics such as games played and points per game would not be complete. 
 
 Note that this data set is biased towards the offensive side of the ball, as it lacks defensive statistics such as blocks or steals. Therefore, the contributions of players focused on the defensive side may be neglected.  
 
@@ -87,13 +87,13 @@ draft_data <- draft_data %>%
   mutate(short_season = as.numeric(str_sub(season, start = 1, end = 4)))
 ```
 
-To begin, we create a new dataset called 'draft_data', which contains only newly drafted players. With the removal of all returning players, we are able to examine how drafting has changed from 1981 to 2018 and study what qualities NBA teams value over time. We essentially only took in the rookie seasons of players in the dataset by filtering in only the observations that had a player's smallest age, which would correspond to their rookie season. We also remove data from the latest season since the information at the time of collection was still not complete due to the ongoing season. 
+To begin, we create a new dataset called 'draft_data', which contains only newly drafted players. With the removal of all returning players, we are able to examine how drafting has changed from 1981 to 2018 and study what qualities NBA teams value over time. We essentially only took in the rookie seasons of players in the dataset by filtering in only the observations that had a player's smallest age, which would correspond to their rookie season. 
 
-Next, we group all of the draft picks by multiples of ten (ie: picks 1-10, 11-20, etc...) in order to organize the data more efficiently. These groups will be referred to as 'draft groups' for the remainder of this report. 
+Next, we grouped all of the draft picks by multiples of ten (ie: picks 1-10, 11-20, etc...) in order to organize the data more efficiently. These groups will be referred to as 'draft groups' for the remainder of this report. 
 
-We then group by both season and draft group, and find the mean of both height and weight--the two most obvious physical characteristics of an NBA player--for each season and draft group. We will graph these over time, with the draft groups differentiated by color, in order to determine if NBA teams' value of height and weight have changed at all over time. 
+We then grouped by both season and draft group, and found the mean of both height and weight--the two most obvious physical characteristics of an NBA player--for each season and draft group. We graphed these over time, with the draft groups differentiated by color, in order to determine if NBA teams' value of height and weight have changed at all over time within the past couple of years. 
 
-We will be using scatterplots with smoothing lines to find how height and weight change over time, which we deemed to be the most appropriate graph because height and weight are both quantitative variables. It is important to note that although the season (our measurement of time) is technically stored as categorical information in the dataset, we can treat it as quantitative because R will order it numerically regardless. This is because we mutated the season variable to include just the first four characters, which is just the first year of the NBA season as NBA seasons run between two years. 
+We used scatterplots with smoothing lines to find how height and weight change over time, which we deemed to be the most appropriate graph because height and weight are both quantitative variables. It is important to note that although the season (our measurement of time) is technically stored as categorical information in the dataset, we can treat it as quantitative because R will order it numerically regardless. This is because we mutated the season variable to include just the first four characters, which is just the first year of the NBA season as NBA seasons run between two years. 
 
 ```{r height-visualization, fig.width=10, fig.height=6}
 
@@ -127,9 +127,11 @@ ggplot(data = draft_data, aes(x = short_season, y = mean_weight,
 
 Note that "NA" refers to players who were undrafted, but still picked up by an NBA team. Based on the two visualizations, it seems that both height and weight similarly changed over time. Both appeared to increase for the first few seasons, decrease for the next few seasons, and then increase once again for the latest few seasons from 1996 to 2019. This pattern was especially noticeable for picks 1-10, which are the most valuable picks. There appears to be no overall trend that occurs over the past twenty or so seasons for both weight and height.
 
-Weight and height traditionally correlate with different positions in basketball, with the guards, or backcourt, being smaller and lighter and the forwards and centers, or frontcourt, being heavier and taller. To move forward, we will attempt to test how the value of both the frontcourt and the backcourt has changed over time, using statistical testing to determine how the selection and prioritization of guards has changed over time. We will be using both simulations of null distributions, and t-tests using the Central Limit Theorem, to find confidence intervals, more data visualizations, and most importantly, p-values. 
+Weight and height traditionally correlate with different positions in basketball, with the guards, or backcourt, being smaller and lighter and the forwards and centers, or frontcourt, being heavier and taller. To move forward, we will attempt to test how the value of both the frontcourt and the backcourt has changed over time, using statistical testing to determine how the selection and prioritization of guards or forwards has changed over time. 
 
-**Section 3: Results**
+We will be using simulations of null distributions, t-tests using the Central Limit Theorem, and linear modeling to find p-values and confidence intervals to look for more insights into our data set. Null simulations will be used so we can test differences in proportions and means between various stats to find different preferences in draftees. CLT t-tests will be used to check if different time periods had different preferences in draftees. A quick linear modeling test will be used to determine a good statistic that has a linear relationship with height or weight.
+
+**Section 3: Tests and Results**
 
 ```{r newvar-guards}
 draft_data <- draft_data %>%
@@ -142,7 +144,11 @@ Backcourt players or guards typically move the ball around frequently in order t
 
 Thus, we have created a new variable called 'guards', which classifies if a rookie player is a guard or not. Our cutoff for this classification is 5 assists per game and a 20% defensive rebounding percentage. If a player has an average of 5 or more assists per game and a defensive rebounding percentage of 20% or less, then they are considered a guard. Otherwise, they are not a guard and are a forward or center. 
 
-We will test preferences for picking guards, and ask the following questions: Are more guards picked in the first draft round? Has the preference for guards shifted over time (is a greater proportion of guards picked in later seasons)? 
+We found these estimated benchmarks by comparing to the stats of a few famous guards such as Chris Paul and Stephen Curry, who on average had about 6 or 7 assists and defensive rebounding percentages that were lower than 20%. We felt that 5 assists per game and 20% defensive rebounding percentage were good estimates of standard values for a rookie guard. 
+
+**Null Simulation for Overall Guard Preference (Difference in Proportions)**
+
+For this null simulation, our question is this: Are more guards picked in the first draft round? Has the preference for guards shifted over time?
 
 Null Hypothesis: The proportion of guards picked in the first round is equal to the proportion of guards picked in the second round.
 
@@ -193,7 +199,11 @@ ggplot(data = boot_diffs, aes(x = stat)) +
        color = "95% CI Bounds")+
   theme_bw()
 ```
-Our p-value was about `r p_val`, and so we reject the null hypothesis at the a = 0.05 level. This decision is further supported by our 95% confidence interval, [`r round(ci1$lower, 3)`, `r round(ci1$upper, 3)`], and our null distribution graph, which shows that our observed difference is outside the confidence interval. There is sufficient evidence to suggest that a larger proportion of guards were picked in the first round compared to the second round, indicating that in general, skilled guards are likely more valued than forwards and centers.
+Our p-value was about `r p_val`, and so we reject the null hypothesis at the a = 0.05 level. This decision is further supported by our 95% confidence interval, [`r round(ci1$lower, 3)`, `r round(ci1$upper, 3)`], and our null distribution graph, which shows that our observed difference is outside the confidence interval. There is sufficient evidence to suggest that a larger proportion of guards were picked in the first round compared to the second round, indicating that in general, skilled guards are likely more valued than forwards and centers within the past seasons starting from 1996.
+
+**Null Simulation for Guard or Frontcourt Preference by Year                (Difference in Means)**
+
+For this null simulation, our question is this: Has the preference for guards or frontcourt players shifted over time? 
 
 We now test whether guards were consistently valued over the past 20 seasons, or if the players NBA teams valued were different in certain time periods. We can do this by comparing the mean of the season for both guards and frontcourt players to see which is higher or lower, if either. We will simulate a null distribution of differences in means, using 2500 samples.
 
@@ -244,41 +254,58 @@ ggplot(data = null_dist, aes(x = stat)) +
        color = "95% CI Bounds")+
   theme_bw()
 ```
-Our p-value was `r p_val`, which is much greater than a = 0.05, and so we fail to reject our null hypothesis. There is not sufficient evidence to suggest that the mean year of guards who were drafted is different from that of non-guards (frontcourt players) who were drafted. In the context of our research question, there is not sufficient evidence to suggest that NBA teams' preferences have shifted towards picking guards during the first draft round.
+Our p-value was `r p_val`, which is much greater than a = 0.05, and so we fail to reject our null hypothesis. There is not sufficient evidence to suggest that the mean year of guards who were drafted is different from that of non-guards (frontcourt players) who were drafted. In the context of our research question, there is not sufficient evidence to suggest that NBA teams' preferences have shifted towards picking guards during the first draft round over the past few seasons starting from 1996.
 
 Because our findings have so far not been conclusive, we will now attempt to analyze whether frontcourt players were more valued in certain seasons based on our visualizations in Section 1. 
 
-From our height and weight graphs, we observed that there was a stronger preference for players in the first draft group who were taller and weighed more in the early 2000s (from about 2000 to 2006). We will test whether this preference heavier players influences the number of rebounds. 
+**Linear Regression for Defensive Rebound Percentage vs Weight**
 
-We fit the logistic regression model with rebound percentage as the response variable with the predictors of player's weight.
+For this linear regression, our question is this: Does weight have a linear relationship with defensive rebounding percentage?
+
+From our height and weight graphs, we observed that there was a stronger preference for players in the first draft group who were taller and weighed more in the early 2000s (from about 2000 to 2006). Taller and heavier players usually receive more rebounds. However, we will test this using linear regression so that we do not rely upon an assumption. We are also using defensive rebound percentage rather than rebounds since the percentage is a better indicator of rebounding accuracy and efficiency than just a total number of rebounds. 
+
+We fit the logistic regression model with rebound percentage as the response variable with the predictor being the player's weight. We chose to prioritize weight over height as heavier players tend to be more powerful and are able to use their mass to force opposing players away so they can grab more rebounds. 
 
 ```{r reb-weight-plot}
 ggplot(data = draft_data, mapping = aes(x = player_weight, y = dreb_pct)) +
   geom_point() + 
   geom_smooth(method = "lm", se = FALSE) + 
-  labs(x = "Player Weight (kg)", y = "Percentage of Rebounds") 
+  labs(x = "Player Weight (kg)", y = "Percentage of Defensive Rebounds",
+       title = "Defensive Rebound Percentage vs Weight") 
 ```
 
-Null Hypothesis: The slope for weight is equal to 0
-Alternate Hypothesis: The slope for weight is not equal to 0
+Null Hypothesis: The slope for weight is equal to 0.
 
-```{r model-weight-rebounds}
+Alternate Hypothesis: The slope for weight is not equal to 0.
+
+$H_0: \beta = 0$ 
+
+$H_a: \beta \neq 0$ 
+
+```{r lin-model-weight-rebounds}
 lm_model <- lm(dreb_pct ~ player_weight, data = draft_data)
 
 tidy(lm_model) %>%
-  select(term, estimate, p.value, statistic) %>%
-  mutate(estimate = round(estimate, 4))
+  kable(digits = 4)
 ```
-predicted_rebounds = -0.1207 + 0.0782 * player_weight
 
-Using a two-sided t-test with 1198-2 = 1196 degrees freedom and a test statistic of 21.70605, we obtained a p-value of 2.390295e-88. This is much smaller than our alpha value of 0.05, which means that we can reject the null hypothesis. In order words, we have sufficient evidence to say that the coefficient of the interaction between player weight and their rebound percentage is not 0, and there is a relationship between player weight and rebound percentage. 
+Using a two-sided t-test with 1198-2 = 1196 degrees freedom and a test statistic of 21.7061 for weight, we obtained a p-value that rounds to about 0. This is smaller than our alpha value of 0.05, which means that we can reject the null hypothesis. In order words, we have sufficient evidence to say that there is a slope for weight and there is a relationship between player weight and rebound percentage. 
 
-We will use a t-test on data to see if there was a higher percentage of rebounds for players in the first draft pick during the 2000-2006 seasons. If this is true, then that would mean the rebound percentage would be higher in those 6 seasons (and would likely be a consequence of valuing taller and heavier players during that time period).
+**CLT Two-Sided T-Test for Defensive Rebounding Percentage differences from 2000-2006**
 
-Null Hypothesis: The percentage of rebounds during the 2000-2006 seasons is equal to the percentage of rebounds during all other years
-Alternative Hypothesis: The percentage of rebounds during the 2000-2006 seasons is different than the percentage of rebounds during all other years
+For this t-test, our question is this: Are mean defensive rebounding percentages from 2000-2006 different than those for the entire dataset? 
 
-```{r clt-early200s-rebounds}
+Now we know that defensive rebound percentage is an accurate indicator of how heavy a player is. We then used a t-test on our data to see if there was a higher defensive rebound percentage for players picked in the first round during the 2000-2006 seasons. If this is true, then that would mean the rebound percentage would be higher in those 6 seasons (and would likely be a consequence of valuing taller and heavier players during that time period).
+
+Null Hypothesis: The defensive rebounding percentage mean during the 2000-2006 seasons is equal to the percentage of rebounds during all other years.
+
+Alternative Hypothesis: The defensive rebounding percentage mean during the 2000-2006 seasons is different than the percentage of rebounds during all other years.
+
+$H_0: \mu_1 = \mu_2$
+
+$H_a: \mu_1 \neq \mu_2$
+
+```{r clt-t-test-early-2000s}
 draft_data <- draft_data %>%
   mutate(early2000s = case_when(
     short_season >= 2000 &&  short_season <= 2006 ~ "early_2000s",
@@ -291,33 +318,44 @@ rebounds <- draft_data %>%
          alternative = "two-sided",
          order = c("early_2000s", "not_early_2000s"), 
          conf_int = FALSE)
-rebounds 
+rebounds %>%
+  kable(digits = 3)
 ```
 
-Using a two-sided t-test with a test statistic of `r round(rebounds$statistic, 3)` and `r round(rebounds$t_df, 0)` degrees of freedom, we found a p-value of `r round(rebounds$p_value, 3)`. Because our p_value is larger than our alpha value of 0.05, we fail to reject the null hypothesis. We have insufficient evidence to say that the percentage of rebounds during the 2000-2006 seasons is different than the percentage of rebounds during all other years. We also have insufficient evidence to say that the percentage of rebounds during the 2000-2006 seasons is equal to the percentage of rebounds during all other years. 
+Using a two-sided t-test with a test statistic of `r round(rebounds$statistic, 3)` and `r round(rebounds$t_df, 0)` degrees of freedom, we found a p-value of `r round(rebounds$p_value, 3)`. Because our p_value is larger than our alpha value of 0.05, we fail to reject the null hypothesis. We have insufficient evidence to say that the mean defensive rebounding percentage during the 2000-2006 seasons is different than the mean defensive rebounding percentage during all other years. We also have insufficient evidence to say that the mean defensive rebounding percentage during the 2000-2006 seasons is equal to the mean defensive rebounding percentage during all other years. 
 
 **Section 4: Discussion and Conclusion**
 
-We learned that taller and heavier NBA players were not more preferred in the 2000-2006 seasons, despite the implications of our height and weight graphs over seasons, categorized by draft group. We reached this conclusion through our CLT test results, which showed that the 95% confidence interval for the early 2000s, [2.28, 2.65], had lower values than that of the overall data set, which was [2.48, 2.69]. 
+We learned that heavier NBA players were not more preferred in the 2000-2006 seasons, despite the implications of our height and weight graphs over seasons, categorized by draft group. We reached this conclusion through our CLT test results, whose p-value, 0.813, was much larger than our alpha value of 0.05. 
 
-We also learned that the proportion of guards picked in the first round was greater than that of guards picked in the second round. Because our p-value for the test we used was 0, which was lower than our significance level of 0.05, we concluded that guards are generally prioritized by NBA teams during the draft process.
+We also learned that the proportion of guards picked in the first round was greater than that of guards picked in the second round. Because our p-value for the first null simulation test used was 0, which was lower than our significance level of 0.05, we concluded that guards are generally prioritized by NBA teams during the draft process over the recent years. 
 
-However, we also learned that there is no relation between prioritizing guards and frontcourt players over the years. Because our p-value for the test we used was 0.634, which was much larger than our significance level of 0.05, we reached the conclusion that NBA teams tend to prefer guards over frontcourt players, but also that drafting patterns have generally been similar over the past 20 seasons. 
+However, we also learned that there is no relation between positional preference (guard vs frontcourt) and time. Because our p-value for the second null simulation test was 0.585, which was much larger than our significance level of 0.05, we realized that there is no discernible relation between choosing players of different positions by NBA teams based off of the time. Since we failed to reject the null, we cannot determine if there is truly no relation between positional preference and season either.
+
+In conclusion, to answer our research question of how have the quality traits NBA teams desire in a draftee changed over time, our response is that although guards were consistently more desired over the past couple of seasons, there were no noticeable relations in positional differences or weight differences among players drafted based off of different seasons, implying that the quality traits NBA teams desire in draftees have stayed relatively consistent from the 1996-2018 seasons. However, more testing is needed before we can make definite conclusions on the lack of drafting patterns since most of our statistical tests resulted in failure to reject the null hypothesis.  
 
 Our data visualization methods in Section 1 were not as reliable or precise as we would have hoped. Although we were able to map out draft picks over twenty years groups by draft groups, the margins of error were fairly large as seen by the shaded regions around our smoothing lines. We might address this issue by creating visualizations for several seasons at a time, rather than trying to represent the entire dataset with one graph. 
 
-Our CLT t-tests were also lacking in validity and reliability. We did not compare the rebounding averages to another statistic, and only compared the two confidence intervals in order to make our conclusion. This is likely not very accurate since we did not use p-values. However, since confidence intervals and p-values have a 1 to 1 correspondence, our analysis should still be somewhat correct, although a proper simulation or a more detailed CLT t-test would likely be more accurate. 
+Our null distribution simulations are probably the most accurate and reliable part of our statistical analysis since the sample sizes we used were fairly large. To improve in this aspect, we might increase the number of samples per simulation.
 
-Our null distribution simulations are probably the most accurate and reliable part of our statistical analysis. To improve in this aspect, we might increase the number of samples per simulation.
+However, a potential error with our first null simulation is how we determined who was a guard and who was not. We did this by estimating values based off of a few famous guards such as Chris Paul and Stephen Curry. However, looking at just a few data points is not a reliable method of finding benchmarks like this, as they could have easily been outliers. We could have been more accurate by using a larger sample size to determine the standard assists per game and defensive rebounding percentage for a guard. 
+
+Our linear modeling between weight and defensive rebound percentage appears to be of moderate accuracy, as there is a fairly wide spread of the data points. However, the linear model does seem to line up with the data somewhat well. Our p-value for our t-test was also extremely small, which showed that defensive rebound percentage is affected by weight.
+
+Our CLT t-test may be somewhat inaccurate since we filtered for only the top ten picks for each season. We did this because we wanted to emphasize the priority of draft picks, but this may have also lowered the sample size of data and thus rendered our data inaccurate. 
 
 If we were to redo this analysis, we would try to filter our data more. Even after we filtered out every non-rookie player in our large dataset, we still had about 1200 observations, which is large enough to increase the probability of errors and outliers. We would also try to facet our data and then graph it to facilitate ease of analysis and interpretation.
 
 In the future, we want to analyze age and how the age of NBA draftees has--or has not--changed over time. The debate between going pro as soon as possible or staying four years at a Division 1 college is a major point of contention, and it would be an interesting question to explore.
 
-We could also have more inference testing related to frontcourt positions, since we focused on a lot more than intended on the backcourt for this lab report. Many famous players right now such Lebron James or Kevin Durant are all frontcourt players, so it would be interesting to explore that particular aspect of the NBA.
+We also analyzed how weight has a linear relationship with defensive rebound percentage and performed a CLT double-sided t-test on whether weight changed depending on whether the draftee was drafted within the 2000-2006 seasons, and resulted in no conclusions. Thus, another action would be to check if height is linear with defensive rebounding percentage and perform the same test on height instead to see if the results become more conclusive. 
 
+We could also have more inference testing related to frontcourt positions, since we focused on a lot more than intended on the backcourt for this lab report. Many famous players right now such LeBron James or Kevin Durant are all frontcourt players, so it would be interesting to explore that particular aspect of the NBA.
 
+**References**
 
+Cirtautas, J. (2020, March 08). NBA Players: Biometric, biographic and basic box score features from 1996 to 2019 season. Retrieved October 9, 2020, from https://www.kaggle.com/justinas/nba-players-data
 
+Goldsberry, K. (2020, April 30). Seven ways the NBA has changed since       Michael Jordan's Bulls. Retrieved October 9, 2020, from         https://www.espn.com/nba/story/_/id/29113310/seven-ways-nba-changed-michael-jordan-bulls
 
 
