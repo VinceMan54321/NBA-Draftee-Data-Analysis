@@ -20,7 +20,7 @@ nba <- read_csv("data/all_seasons.csv")
 ```
 
 
-**Section 1: Introduction and Data**
+### Section 1: Introduction and Data
 
 Our dataset consists of various statistics for every player who has played in the NBA within the 1996-2020 seasons, ranging from their home country and college of origin, draft year and round, and various stats such as average points, rebounds, and assists per game. 
 
@@ -60,7 +60,7 @@ dreb_pct: Percentage of available defensive rebounds the player grabbed while he
 
 season: NBA season (number is the year the season started)
 
-**Section 2: Methodology and Data**
+### Section 2: Methodology and Data
 
 We picked 1996 as the starting year for our analysis since that's the season during which the dataset begins collection. We then filtered out any recorded data from before 1996. We also capped our analysis before the 2019 season, as the 2019-2020 season was ongoing at the time of upload, so metrics such as games played and points per game would not be complete. 
 
@@ -131,7 +131,7 @@ Weight and height traditionally correlate with different positions in basketball
 
 We will be using simulations of null distributions, t-tests using the Central Limit Theorem, and linear modeling to find p-values and confidence intervals to look for more insights into our data set. Null simulations will be used so we can test differences in proportions and means between various stats to find different preferences in draftees. CLT t-tests will be used to check if different time periods had different preferences in draftees. A quick linear modeling test will be used to determine a good statistic that has a linear relationship with height or weight.
 
-**Section 3: Tests and Results**
+### Section 3: Tests and Results
 
 ```{r newvar-guards}
 draft_data <- draft_data %>%
@@ -146,7 +146,7 @@ Thus, we have created a new variable called 'guards', which classifies if a rook
 
 We found these estimated benchmarks by comparing to the stats of a few famous guards such as Chris Paul and Stephen Curry, who on average had about 6 or 7 assists and defensive rebounding percentages that were lower than 20%. We felt that 5 assists per game and 20% defensive rebounding percentage were good estimates of standard values for a rookie guard. 
 
-**Null Simulation for Overall Guard Preference (Difference in Proportions)**
+### Null Simulation for Overall Guard Preference (Difference in Proportions)
 
 For this null simulation, our question is this: Are more guards picked in the first draft round? Has the preference for guards shifted over time?
 
@@ -201,7 +201,7 @@ ggplot(data = boot_diffs, aes(x = stat)) +
 ```
 Our p-value was about `r p_val`, and so we reject the null hypothesis at the a = 0.05 level. This decision is further supported by our 95% confidence interval, [`r round(ci1$lower, 3)`, `r round(ci1$upper, 3)`], and our null distribution graph, which shows that our observed difference is outside the confidence interval. There is sufficient evidence to suggest that a larger proportion of guards were picked in the first round compared to the second round, indicating that in general, skilled guards are likely more valued than forwards and centers within the past seasons starting from 1996.
 
-**Null Simulation for Guard or Frontcourt Preference by Year                (Difference in Means)**
+### Null Simulation for Guard or Frontcourt Preference by Year                  (Difference in Means)
 
 For this null simulation, our question is this: Has the preference for guards or frontcourt players shifted over time? 
 
@@ -258,7 +258,7 @@ Our p-value was `r p_val`, which is much greater than a = 0.05, and so we fail t
 
 Because our findings have so far not been conclusive, we will now attempt to analyze whether frontcourt players were more valued in certain seasons based on our visualizations in Section 1. 
 
-**Linear Regression for Defensive Rebound Percentage vs Weight**
+### Linear Regression for Defensive Rebound Percentage vs Weight
 
 For this linear regression, our question is this: Does weight have a linear relationship with defensive rebounding percentage?
 
@@ -291,7 +291,28 @@ tidy(lm_model) %>%
 
 Using a two-sided t-test with 1198-2 = 1196 degrees freedom and a test statistic of 21.7061 for weight, we obtained a p-value that rounds to about 0. This is smaller than our alpha value of 0.05, which means that we can reject the null hypothesis. In order words, we have sufficient evidence to say that there is a slope for weight and there is a relationship between player weight and rebound percentage. 
 
-**CLT Two-Sided T-Test for Defensive Rebounding Percentage differences from 2000-2006**
+```{r condition-1, fig.width=3, fig.height=3}
+aug <- augment(lm_model)
+
+ggplot(aug, mapping = aes(x = .fitted, y = .resid)) +
+  geom_point() + geom_hline(yintercept = 0, lwd = 2, col = "red", lty = 2) +
+  labs(x = "Predicted DREB%", y = "Residuals")
+```
+```{r condition-2, fig.width=3, fig.height=3}
+ggplot(data = aug, aes(x = 1:nrow(draft_data), y = .resid)) + 
+  geom_point() + geom_hline(yintercept = 0, lwd = 2, col = "red", lty = 2) +
+  labs(x = "Index", y = "Residual")
+```
+
+```{r condition-3, fig.width=3, fig.height=3}
+ggplot(aug, mapping = aes(x = .resid)) +
+  geom_histogram(bins = 15) + labs(x = "Residuals")
+```
+
+
+To quickly make sure that our linear regression test was allowed, we ran some residual visualizations. Residuals vs Predicted DREB% shows that the data is linear and of equal variance since there are no patterns and fair distribution. Residual vs Index shows there is independence since there are no patterns. Count vs Residuals shows there is a normal relationship since the distribution appears to have normal-shaped curve. 
+
+### CLT Two-Sided T-Test for Defensive Rebounding Percentage differences from 2000-2006
 
 For this t-test, our question is this: Are mean defensive rebounding percentages from 2000-2006 different than those for the entire dataset? 
 
@@ -324,9 +345,9 @@ rebounds %>%
 
 Using a two-sided t-test with a test statistic of `r round(rebounds$statistic, 3)` and `r round(rebounds$t_df, 0)` degrees of freedom, we found a p-value of `r round(rebounds$p_value, 3)`. Because our p_value is larger than our alpha value of 0.05, we fail to reject the null hypothesis. We have insufficient evidence to say that the mean defensive rebounding percentage during the 2000-2006 seasons is different than the mean defensive rebounding percentage during all other years. We also have insufficient evidence to say that the mean defensive rebounding percentage during the 2000-2006 seasons is equal to the mean defensive rebounding percentage during all other years. 
 
-**Section 4: Discussion and Conclusion**
+### Section 4: Discussion and Conclusion
 
-We learned that heavier NBA players were not more preferred in the 2000-2006 seasons, despite the implications of our height and weight graphs over seasons, categorized by draft group. We reached this conclusion through our CLT test results, whose p-value, 0.813, was much larger than our alpha value of 0.05. 
+We learned that heavier NBA players did not have a different average defensive rebounding percentage in the 2000-2006 seasons, despite the implications of our height and weight graphs over seasons, categorized by draft group. We reached this conclusion through our CLT test results, whose p-value, 0.813, was much larger than our alpha value of 0.05. This means that heavier NBA players were not necessarily more preferred in the 2000-2006 seasons.  
 
 We also learned that the proportion of guards picked in the first round was greater than that of guards picked in the second round. Because our p-value for the first null simulation test used was 0, which was lower than our significance level of 0.05, we concluded that guards are generally prioritized by NBA teams during the draft process over the recent years. 
 
@@ -352,7 +373,7 @@ We also analyzed how weight has a linear relationship with defensive rebound per
 
 We could also have more inference testing related to frontcourt positions, since we focused on a lot more than intended on the backcourt for this lab report. Many famous players right now such LeBron James or Kevin Durant are all frontcourt players, so it would be interesting to explore that particular aspect of the NBA.
 
-**References**
+### References
 
 Cirtautas, J. (2020, March 08). NBA Players: Biometric, biographic and basic box score features from 1996 to 2019 season. Retrieved October 9, 2020, from https://www.kaggle.com/justinas/nba-players-data
 
