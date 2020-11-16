@@ -36,6 +36,30 @@ We will be looking at season to determine the time, the draft round and number t
 
 Our general hypothesis is that over the past twenty or so seasons, shorter and lighter players have been prioritized in drafts. Scoring, assisting, and true shooting averages will also likely have an upwards trend, while rebounding will likely trend downwards. Teams will have shifted from desiring a tall and heavy rebounder and shot-blocker towards a smaller and quicker shooter with more offensive capabilities. 
 
+Here are all the variables we used from the dataset and some brief descriptions of what they represent: 
+
+player_name: Name of the player
+
+age: Age of the player
+
+player_height: Height of the player (in centimeters)
+
+player_weight: Weight of the player (in kilograms)
+
+draft_year: The year the player was drafted
+
+draft_round: The draft round the player was picked
+
+draft_number: The number at which the player was picked in his draft round
+
+reb: Average number of rebounds grabbed
+
+ast: Average number of assists distributed
+
+dreb_pct: Percentage of available defensive rebounds the player grabbed while he was on the floor
+
+season: NBA season
+
 **Section 2: Methodology and Data**
 
 Taking a closer look at our data set by year, we can see that although there are some outliers, consistent data on players across the league began to be recorded around the year 1996. For this reason, we will pick 1996 as the starting year for our analysis and filter out any recorded data from before 1996. We also cap our analysis at before the 2019 season, as the 2019 season was ongoing at the time of upload, so metrics such as gp, pts, reb, etc. would not be complete.
